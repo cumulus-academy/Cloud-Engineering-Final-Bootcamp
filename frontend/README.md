@@ -51,6 +51,12 @@ separator). They follow the shadcn/ui convention and use the `cn()` helper in
 `tailwind.config.js`. If you want to add more shadcn components you *may*, but
 it is not required for the capstone.
 
+## Your architecture diagram
+
+Drop your **draw.io** diagram into [public/diagrams/](public/diagrams/) as
+`architecture.drawio.svg` and it appears on the **Architecture** page
+automatically — no code changes. Full instructions are in that folder's README.
+
 ## What YOU will do later
 
 - **Milestone 4:** build this Dockerfile and push the image to **ECR**.
