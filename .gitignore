@@ -38,3 +38,15 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+
+node_modules/
+dist/
+.env
+.env.*
+*.log
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*
+.DS_Store
