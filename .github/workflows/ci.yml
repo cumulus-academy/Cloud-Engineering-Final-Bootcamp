@@ -1,0 +1,45 @@
+# =============================================================================
+# CI  —  PROVIDED, AND IT WORKS OUT OF THE BOX.
+# =============================================================================
+# Runs on every push/PR. Tests the backend and builds the frontend — the same
+# checks you ran locally. This should be GREEN on a fresh fork. Build on it.
+# (No AWS credentials needed for this workflow.)
+# =============================================================================
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend-test:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm test
+
+  frontend-build:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run build
+
+  # TODO(student, optional): add a lint job, or `terraform fmt -check`, or a
+  # `kubectl kustomize` render check here to catch problems early.

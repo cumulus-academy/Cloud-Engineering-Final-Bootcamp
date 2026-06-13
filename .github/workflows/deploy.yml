@@ -1,0 +1,70 @@
+# =============================================================================
+# Deploy to EKS  —  SKELETON. You complete the TODOs (Milestone 5 + 8).
+# =============================================================================
+# Points the Kustomize overlay at the freshly-built images and applies it to the
+# cluster. Run this after Build & Push has put images in ECR.
+#
+# REQUIRED repository variables: AWS_REGION, PROJECT_NAME, AWS_ROLE_ARN,
+#                                EKS_CLUSTER_NAME
+# =============================================================================
+name: Deploy to EKS
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (e.g. a git SHA, or 'latest')"
+        type: string
+        default: latest
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  NAMESPACE: cloud-portfolio-dev
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO(student): set AWS_ROLE_ARN to your OIDC role's ARN.
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # TODO(student): set EKS_CLUSTER_NAME (terraform output cluster_name).
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: Get ECR registry
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # TODO(student): point the overlay at the images you pushed.
+      # `kubectl kustomize` (kustomize) is preinstalled on GitHub runners.
+      - name: Set image tags
+        working-directory: kubernetes/overlays/dev
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          TAG: ${{ inputs.image_tag }}
+        run: |
+          echo "TODO: uncomment once your ECR repos exist:"
+          # kustomize edit set image \
+          #   frontend-placeholder=$REGISTRY/${{ vars.PROJECT_NAME }}-frontend:$TAG
+          # kustomize edit set image \
+          #   backend-placeholder=$REGISTRY/${{ vars.PROJECT_NAME }}-backend:$TAG
+
+      - name: Apply manifests
+        run: kubectl apply -k kubernetes/overlays/dev
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deploy/frontend -n "$NAMESPACE" --timeout=120s
+          kubectl rollout status deploy/backend  -n "$NAMESPACE" --timeout=120s

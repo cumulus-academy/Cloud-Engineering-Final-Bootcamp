@@ -1,0 +1,17 @@
+// =============================================================================
+// Site identity  (GENERATED FILE — TEMPLATE)
+// =============================================================================
+// Do not edit `site.js` by hand — it is overwritten.
+// Edit `customization.json` at the repo root, then run `make customize`.
+// =============================================================================
+
+export const site = {
+  studentName: "__STUDENT_NAME__",
+  email: "__STUDENT_EMAIL__",
+  location: "__STUDENT_LOCATION__",
+  linkedinUrl: "__STUDENT_LINKEDIN_URL__",
+  githubUrl: "__STUDENT_GITHUB_URL__",
+  domainName: "__STUDENT_DOMAIN_NAME__",
+  awsRegion: "__AWS_REGION__",
+  projectName: "__PROJECT_NAME__",
+};

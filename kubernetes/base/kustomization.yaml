@@ -1,0 +1,18 @@
+# =============================================================================
+# Base Kustomization  —  PROVIDED (wiring given). You edit the manifests above.
+# =============================================================================
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - frontend-deployment.yaml
+  - frontend-service.yaml
+  - backend-deployment.yaml
+  - backend-service.yaml
+  - ingress.yaml
+
+# A common label on every resource's metadata (not selectors).
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: cloud-portfolio
+    includeSelectors: false

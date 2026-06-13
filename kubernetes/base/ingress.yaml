@@ -1,0 +1,44 @@
+# =============================================================================
+# Ingress (AWS ALB)  —  PARTIAL. You complete the TODOs (Milestone 7).
+# =============================================================================
+# Routes public traffic through an Application Load Balancer:
+#   /api  -> backend Service (port 4000)
+#   /     -> frontend Service (port 80)
+#
+# Requires the AWS Load Balancer Controller installed in the cluster, and the
+# "alb" IngressClass to exist. See kubernetes/README.md.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cloud-portfolio
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    # TODO(student, Milestone 7): enable HTTPS.
+    #   1. Set your ACM certificate ARN (output of the dns-certs module):
+    # alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:REGION:ACCOUNT:certificate/XXXX"
+    #   2. Redirect HTTP -> HTTPS:
+    # alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  # TODO(student, Milestone 7): add your domain as a host via an overlay patch,
+  # e.g. host: yourname.dev — so the ALB + ACM cert serve your domain.
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 4000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

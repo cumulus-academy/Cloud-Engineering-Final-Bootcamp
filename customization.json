@@ -1,0 +1,10 @@
+{
+  "STUDENT_NAME": "Your Name",
+  "STUDENT_EMAIL": "you@example.com",
+  "STUDENT_LOCATION": "City, Country",
+  "STUDENT_LINKEDIN_URL": "https://www.linkedin.com/in/your-handle",
+  "STUDENT_GITHUB_URL": "https://github.com/your-handle",
+  "STUDENT_DOMAIN_NAME": "yourname.dev",
+  "AWS_REGION": "us-east-1",
+  "PROJECT_NAME": "cloud-portfolio"
+}

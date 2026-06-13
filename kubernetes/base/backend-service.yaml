@@ -1,0 +1,16 @@
+# Backend Service — exposes the backend pods inside the cluster.
+# Provided complete; the Ingress routes "/api" here.
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 4000
+      targetPort: 4000

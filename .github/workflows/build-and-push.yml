@@ -1,0 +1,69 @@
+# =============================================================================
+# Build & Push Images  —  SKELETON. You complete the TODOs (Milestone 4 + 8).
+# =============================================================================
+# Builds the frontend + backend Docker images and pushes them to Amazon ECR,
+# authenticating with short-lived OIDC credentials (NO static AWS keys).
+#
+# Runs manually for now. Once your AWS setup works, enable the `push` trigger.
+#
+# REQUIRED repository configuration (Settings -> Secrets and variables -> Actions):
+#   Variables: AWS_REGION, PROJECT_NAME, AWS_ROLE_ARN
+# AWS_ROLE_ARN is an IAM role that trusts GitHub's OIDC provider — see README.md.
+# =============================================================================
+name: Build and Push Images
+
+on:
+  workflow_dispatch:
+  # TODO(student): enable automatic builds on merge once ECR + OIDC work:
+  # push:
+  #   branches: [main]
+
+permissions:
+  id-token: write # required for OIDC auth to AWS
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+
+jobs:
+  build:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO(student): set the AWS_ROLE_ARN variable to your OIDC role's ARN.
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push ${{ matrix.service }}
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          # Repository name must match what your terraform ecr module created.
+          REPOSITORY: ${{ vars.PROJECT_NAME }}-${{ matrix.service }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # The frontend bakes its API base URL at build time. Empty value makes
+          # it call same-origin "/api", which your ALB Ingress routes (Milestone 7).
+          BUILD_ARGS=""
+          if [ "${{ matrix.service }}" = "frontend" ]; then
+            BUILD_ARGS="--build-arg VITE_API_BASE_URL="
+          fi
+
+          docker build $BUILD_ARGS \
+            -t "$REGISTRY/$REPOSITORY:$IMAGE_TAG" \
+            -t "$REGISTRY/$REPOSITORY:latest" \
+            ./${{ matrix.service }}
+
+          docker push "$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+          docker push "$REGISTRY/$REPOSITORY:latest"

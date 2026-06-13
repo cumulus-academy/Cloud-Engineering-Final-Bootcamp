@@ -1,0 +1,67 @@
+# =============================================================================
+# LOCAL DEVELOPMENT STACK
+# =============================================================================
+# This runs the WORKING application on your laptop so you can see it before
+# you deploy anything to AWS. The academy provides all of this — you do not
+# need to change it.
+#
+#   make dev    -> start everything
+#   make down   -> stop everything
+#   make logs   -> tail logs
+#
+# Services: postgres (with auto schema+seed), backend API, and the React
+# frontend. Run `make customize` once first so .env and the seed are generated.
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ${PROJECT_NAME:-cloud-portfolio}-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-portfolio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-portfolio_local_password}
+      POSTGRES_DB: ${POSTGRES_DB:-portfolio}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Schema + seed run automatically the first time the volume is created.
+      # Files are applied in alphabetical order.
+      - ./database/schema:/docker-entrypoint-initdb.d/00-schema:ro
+      - ./database/seed:/docker-entrypoint-initdb.d/01-seed:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-portfolio} -d ${POSTGRES_DB:-portfolio}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ${PROJECT_NAME:-cloud-portfolio}-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://portfolio:portfolio_local_password@postgres:5432/portfolio}
+      BACKEND_PORT: ${BACKEND_PORT:-4000}
+      NODE_ENV: development
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:4000}
+    container_name: ${PROJECT_NAME:-cloud-portfolio}-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

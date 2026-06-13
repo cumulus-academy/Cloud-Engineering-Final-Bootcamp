@@ -1,0 +1,14 @@
+{
+  "name": "visitor-counter-lambda",
+  "version": "1.0.0",
+  "description": "Visitor counter Lambda backed by DynamoDB",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "local": "node local-run.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.637.0",
+    "@aws-sdk/lib-dynamodb": "^3.637.0"
+  }
+}

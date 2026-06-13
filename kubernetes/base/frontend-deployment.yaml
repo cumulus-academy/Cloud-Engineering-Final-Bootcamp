@@ -1,0 +1,46 @@
+# =============================================================================
+# Frontend Deployment  —  PARTIAL. You complete the TODOs (Milestone 5).
+# =============================================================================
+# The React site served by nginx on port 80. The image is a placeholder that
+# your dev overlay rewrites to the real ECR image (see overlays/dev images:).
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          # TODO: do NOT hardcode the image here. The overlay's `images:` block
+          # rewrites "frontend-placeholder" to your ECR repo URL (Milestone 4/5).
+          image: frontend-placeholder:latest
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          # TODO(student): set resource requests/limits so the scheduler can
+          # place the pod and protect the node. Example:
+          # resources:
+          #   requests: { cpu: "50m", memory: "64Mi" }
+          #   limits:   { cpu: "200m", memory: "128Mi" }

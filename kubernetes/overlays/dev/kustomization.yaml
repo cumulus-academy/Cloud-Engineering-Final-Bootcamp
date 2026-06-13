@@ -1,0 +1,46 @@
+# =============================================================================
+# Dev Overlay  —  PARTIAL. You complete the TODOs (Milestone 5).
+# =============================================================================
+# Builds on ../../base and customizes it for the dev environment. Render it with:
+#   kubectl kustomize kubernetes/overlays/dev
+# =============================================================================
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Put everything in its own namespace (also created here).
+namespace: cloud-portfolio-dev
+
+resources:
+  - namespace.yaml
+  - ../../base
+
+# ---- Image rewrites --------------------------------------------------------
+# Point the placeholder images at your real ECR repositories (Milestone 4/5).
+# Get the URLs from `terraform output ecr_repository_urls`, and use the image
+# tag your CI pipeline pushes (e.g. the git SHA).
+images:
+  - name: frontend-placeholder
+    # TODO(student): replace with your ECR repo URL.
+    newName: REPLACE_ME.dkr.ecr.REGION.amazonaws.com/cloud-portfolio-frontend
+    newTag: latest
+  - name: backend-placeholder
+    # TODO(student): replace with your ECR repo URL.
+    newName: REPLACE_ME.dkr.ecr.REGION.amazonaws.com/cloud-portfolio-backend
+    newTag: latest
+
+# ---- Patches ---------------------------------------------------------------
+# Example patch: run 2 frontend replicas in dev. Add your own below.
+patches:
+  - target:
+      kind: Deployment
+      name: frontend
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+
+  # TODO(student): add more patches as you go, for example:
+  #   - backend replicas
+  #   - the Ingress host (your domain) and certificate-arn annotation
+  #   - resource requests/limits
+  #   - an HPA (optional)

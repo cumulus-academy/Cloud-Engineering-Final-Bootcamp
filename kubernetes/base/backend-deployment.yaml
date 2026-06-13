@@ -1,0 +1,56 @@
+# =============================================================================
+# Backend Deployment  —  PARTIAL. You complete the TODOs (Milestone 5).
+# =============================================================================
+# The Node/Express API on port 4000. The liveness/readiness probes hit
+# /api/health, which does NOT touch the database — so the pod stays healthy even
+# before you've wired up RDS. The DATABASE_URL comes from a Secret (TODO).
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # TODO: overlay rewrites "backend-placeholder" to your ECR repo URL.
+          image: backend-placeholder:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: BACKEND_PORT
+              value: "4000"
+            # TODO(student): provide DATABASE_URL from a Kubernetes Secret that
+            # you source from AWS Secrets Manager (Milestone 3 + 9). Create the
+            # secret (see kubernetes/README.md), then uncomment:
+            # - name: DATABASE_URL
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: backend-secrets
+            #       key: DATABASE_URL
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          # TODO(student): set resource requests/limits. Example:
+          # resources:
+          #   requests: { cpu: "100m", memory: "128Mi" }
+          #   limits:   { cpu: "500m", memory: "256Mi" }

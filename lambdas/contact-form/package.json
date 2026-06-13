@@ -1,0 +1,11 @@
+{
+  "name": "contact-form-lambda",
+  "version": "1.0.0",
+  "description": "Contact form Lambda (validates + logs; delivery is a student TODO)",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "local": "node local-run.js"
+  },
+  "dependencies": {}
+}

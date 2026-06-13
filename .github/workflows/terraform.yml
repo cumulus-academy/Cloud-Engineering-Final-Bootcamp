@@ -1,0 +1,71 @@
+# =============================================================================
+# Terraform  —  SKELETON. You complete the TODOs (Milestone 2 + 8).
+# =============================================================================
+# Runs fmt/validate/plan, and apply when you choose "apply". Authenticates to
+# AWS with OIDC. fmt + validate work today; plan/apply need your AWS setup.
+#
+# REQUIRED repository variables: AWS_REGION, PROJECT_NAME, DOMAIN_NAME, AWS_ROLE_ARN
+# =============================================================================
+name: Terraform
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action to run"
+        type: choice
+        options: [plan, apply]
+        default: plan
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+
+jobs:
+  terraform:
+    name: Terraform ${{ inputs.action }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/environments/dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Format check
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+
+      # TODO(student): set AWS_ROLE_ARN to your OIDC role's ARN.
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Generate terraform.tfvars
+        run: |
+          # In CI there is no customization.json step; build tfvars from repo vars.
+          cat > terraform.tfvars <<EOF
+          project_name = "${{ vars.PROJECT_NAME }}"
+          aws_region   = "${{ vars.AWS_REGION }}"
+          domain_name  = "${{ vars.DOMAIN_NAME }}"
+          EOF
+
+      # TODO(student): this needs the S3 backend in backend.tf to be configured.
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        if: ${{ inputs.action == 'apply' }}
+        run: terraform apply -auto-approve tfplan

@@ -1,0 +1,90 @@
+-- =============================================================================
+-- Seed data  (TEMPLATE)
+-- =============================================================================
+-- This is a TEMPLATE. Do not edit the personal values here directly.
+-- Edit `customization.json` at the repo root, then run `make customize`.
+-- That renders this file to `database/seed/seed.sql` with your details.
+--
+-- Tokens like Your Name are replaced automatically.
+--
+-- The skills / certifications / projects below are sample content — feel free
+-- to edit them in `seed.sql` after it is generated (it is yours to personalize),
+-- but the eight identity values should come from customization.json.
+-- =============================================================================
+
+-- ---- Profile (single row) ----
+INSERT INTO profile (id, name, title, email, location, bio, linkedin_url, github_url)
+VALUES (
+    1,
+    'Your Name',
+    'Cloud Engineer',
+    'you@example.com',
+    'City, Country',
+    'Junior cloud engineer focused on AWS, infrastructure as code, and reliable, observable platforms. This portfolio is itself deployed on AWS using Terraform, EKS, and a full CI/CD pipeline.',
+    'https://www.linkedin.com/in/your-handle',
+    'https://github.com/your-handle'
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    email = EXCLUDED.email,
+    location = EXCLUDED.location,
+    linkedin_url = EXCLUDED.linkedin_url,
+    github_url = EXCLUDED.github_url,
+    updated_at = now();
+
+-- ---- Skills ----
+INSERT INTO skills (category, name, level, display_order) VALUES
+    ('Cloud',       'AWS',             4, 10),
+    ('IaC',         'Terraform',       4, 20),
+    ('Containers',  'Docker',          4, 30),
+    ('Containers',  'Kubernetes (EKS)',3, 40),
+    ('CI/CD',       'GitHub Actions',  4, 50),
+    ('CI/CD',       'GitOps',          3, 60),
+    ('Databases',   'PostgreSQL (RDS)',3, 70),
+    ('Databases',   'DynamoDB',        3, 80),
+    ('Networking',  'Route53 / ALB',   3, 90),
+    ('Security',    'IAM / Secrets Manager', 3, 100),
+    ('Observability','CloudWatch',     3, 110),
+    ('Languages',   'Bash / YAML',     4, 120)
+ON CONFLICT DO NOTHING;
+
+-- ---- Certifications ----
+INSERT INTO certifications (name, issuer, issued_date, credential_url, status) VALUES
+    ('AWS Certified Cloud Practitioner', 'Amazon Web Services', '2025-09-01', NULL, 'earned'),
+    ('AWS Certified Solutions Architect – Associate', 'Amazon Web Services', NULL, NULL, 'in-progress'),
+    ('Terraform Associate', 'HashiCorp', NULL, NULL, 'planned')
+ON CONFLICT DO NOTHING;
+
+-- ---- Projects ----
+INSERT INTO projects (title, summary, description, tech, repo_url, demo_url, featured, display_order) VALUES
+    (
+        'Cloud Engineer Portfolio & Operations Platform',
+        'This site — a portfolio deployed end-to-end on AWS.',
+        'A production-style deployment built from a starter monorepo: React frontend and Node API on EKS, RDS PostgreSQL, DynamoDB-backed visitor counter, Lambda microservices, fronted by an Application Load Balancer with Route53 + ACM, all provisioned with Terraform and shipped via GitHub Actions.',
+        ARRAY['AWS','Terraform','EKS','RDS','Lambda','GitHubActions'],
+        'https://github.com/your-handle',
+        'https://yourname.dev',
+        true,
+        10
+    ),
+    (
+        'Infrastructure as Code Modules',
+        'Reusable Terraform modules for VPC, EKS, and RDS.',
+        'A library of Terraform modules used to provision the platform networking, cluster, and data layer with sensible, least-privilege defaults.',
+        ARRAY['Terraform','AWS','VPC','EKS'],
+        'https://github.com/your-handle',
+        NULL,
+        false,
+        20
+    ),
+    (
+        'CI/CD Delivery Pipeline',
+        'GitHub Actions pipeline with OIDC, ECR, and GitOps deploys.',
+        'Automated build, test, image push to ECR, Terraform plan/apply, and Kubernetes deployment — authenticated to AWS with short-lived OIDC credentials (no static keys).',
+        ARRAY['GitHubActions','OIDC','ECR','Kubernetes'],
+        'https://github.com/your-handle',
+        NULL,
+        false,
+        30
+    )
+ON CONFLICT DO NOTHING;

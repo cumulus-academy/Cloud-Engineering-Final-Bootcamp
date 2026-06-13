@@ -1,0 +1,16 @@
+# Frontend Service — exposes the frontend pods inside the cluster.
+# Provided complete; the Ingress routes "/" here.
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
